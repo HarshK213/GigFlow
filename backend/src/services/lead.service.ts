@@ -106,6 +106,49 @@ export async function deleteLead(id: string): Promise<void> {
   }
 }
 
+export async function bulkImportLeads(
+  leadsData: Array<{
+    name: string;
+    email: string;
+    status?: string;
+    source?: string;
+  }>,
+  userId: string
+): Promise<{ imported: number; errors: Array<{ row: number; message: string }> }> {
+  const errors: Array<{ row: number; message: string }> = [];
+  const validLeads: Array<{
+    name: string;
+    email: string;
+    status: string;
+    source: string;
+    createdBy: string;
+  }> = [];
+
+  leadsData.forEach((data, index) => {
+    const rowNum = index + 1;
+    if (!data.name || !data.email) {
+      errors.push({
+        row: rowNum,
+        message: !data.name ? 'Name is required' : 'Email is required',
+      });
+      return;
+    }
+    validLeads.push({
+      name: data.name,
+      email: data.email,
+      status: data.status || 'New',
+      source: data.source || 'Website',
+      createdBy: userId,
+    });
+  });
+
+  if (validLeads.length > 0) {
+    await Lead.insertMany(validLeads);
+  }
+
+  return { imported: validLeads.length, errors };
+}
+
 export async function exportLeads(
   filters: GetLeadsFilters,
   userId: string,

@@ -1,0 +1,26 @@
+name,email,status,source
+Alice Johnson,alice@example.com,New,Website
+Bob Smith,bob@example.com,Contacted,Instagram
+Carol Williams,carol@example.com,Qualified,Referral
+David Brown,david@example.com,New,Website
+Eve Davis,eve@example.com,Lost,Instagram
+Frank Miller,frank@example.com,Contacted,Referral
+Grace Wilson,grace@example.com,New,Website
+Henry Moore,henry@example.com,Qualified,Instagram
+Ivy Taylor,ivy@example.com,Contacted,Referral
+Jack Anderson,jack@example.com,New,Website
+Karen Thomas,karen@example.com,Lost,Instagram
+Leo Jackson,leo@example.com,Qualified,Referral
+Mia White,mia@example.com,New,Website
+Noah Harris,noah@example.com,Contacted,Instagram
+Olivia Martin,olivia@example.com,Qualified,Referral
+Paul Garcia,paul@example.com,New,Website
+Quinn Martinez,quinn@example.com,Lost,Instagram
+Rachel Robinson,rachel@example.com,Contacted,Referral
+Sam Clark,sam@example.com,New,Website
+Tina Rodriguez,tina@example.com,Qualified,Instagram
+Uma Lewis,uma@example.com,Contacted,Website
+Victor Lee,victor@example.com,New,Referral
+Wendy Walker,wendy@example.com,Qualified,Instagram
+Xander Hall,xander@example.com,Lost,Website
+Yara Allen,yara@example.com,New,Referral

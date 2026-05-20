@@ -5,6 +5,7 @@ import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { LoginPage } from '../pages/Login';
 import { RegisterPage } from '../pages/Register';
 import { DashboardPage } from '../pages/Dashboard';
+import { LeadsPage } from '../pages/Leads';
 import { LeadDetailsPage } from '../pages/LeadDetails';
 
 export function AppRoutes() {
@@ -23,6 +24,7 @@ export function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/leads" element={<LeadsPage />} />
           <Route path="/leads/:id" element={<LeadDetailsPage />} />
         </Route>
       </Route>

@@ -23,45 +23,40 @@ export function Pagination({
   }
 
   return (
-    <nav className="flex items-center justify-between gap-4">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        Previous
-      </button>
-
-      <div className="hidden sm:flex items-center gap-1">
+    <div className="flex items-center justify-between">
+      <span className="text-[14px] text-[#464555]">
+        Showing page {currentPage} of {totalPages}
+      </span>
+      <div className="flex gap-2">
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="w-10 h-10 rounded-lg border border-[#c7c4d8] flex items-center justify-center hover:bg-[#e5eeff] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
         {pages.map((page) => (
           <button
             key={page}
             onClick={() => onPageChange(page)}
             className={cn(
-              'px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+              'w-10 h-10 rounded-lg flex items-center justify-center font-bold text-[14px] transition-all',
               page === currentPage
-                ? 'bg-indigo-600 text-white'
-                : 'text-gray-700 hover:bg-gray-100'
+                ? 'bg-[#3525cd] text-white'
+                : 'border border-[#c7c4d8] hover:bg-[#e5eeff]'
             )}
           >
             {page}
           </button>
         ))}
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="w-10 h-10 rounded-lg border border-[#c7c4d8] flex items-center justify-center hover:bg-[#e5eeff] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
       </div>
-
-      <span className="text-sm text-gray-600 sm:hidden">
-        Page {currentPage} of {totalPages}
-      </span>
-
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Next
-        <ChevronRight className="h-4 w-4" />
-      </button>
-    </nav>
+    </div>
   );
 }

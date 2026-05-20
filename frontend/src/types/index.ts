@@ -42,6 +42,11 @@ export interface LeadsResponse {
   pagination: PaginationMeta;
 }
 
+export interface ImportResult {
+  imported: number;
+  errors: Array<{ row: number; message: string }>;
+}
+
 export interface LeadFilters {
   status?: LeadStatus | '';
   source?: LeadSource | '';

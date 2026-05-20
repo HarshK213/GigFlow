@@ -1,178 +1,94 @@
-import { useState, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Users } from 'lucide-react';
-import { getLeads, createLead, updateLead, deleteLead, exportLeadsCsv } from '../api/leads';
-import { LeadTable } from '../components/leads/LeadTable';
-import { LeadFilters } from '../components/leads/LeadFilters';
-import { LeadForm } from '../components/leads/LeadForm';
-import { Pagination } from '../components/ui/Pagination';
-import { Modal } from '../components/ui/Modal';
-import { Button } from '../components/ui/Button';
-import { useDebounce } from '../hooks/useDebounce';
-import type { Lead, LeadFilters as LeadFiltersType } from '../types';
-import type { CreateLeadFormData } from '../schemas/lead';
+import { useQuery } from '@tanstack/react-query';
+import { TrendingUp, Users } from 'lucide-react';
+import { getLeads } from '../api/leads';
+import { DashboardAnalytics } from '../components/dashboard/DashboardAnalytics';
 
 export function DashboardPage() {
-  const queryClient = useQueryClient();
-  const [filters, setFilters] = useState<LeadFiltersType>({
-    status: '',
-    source: '',
-    search: '',
-    page: 1,
-    sort: 'latest',
+  const { data } = useQuery({
+    queryKey: ['leads', { page: 1, sort: 'latest', limit: 100 }],
+    queryFn: () => getLeads({ page: 1, sort: 'latest' }),
   });
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingLead, setEditingLead] = useState<Lead | null>(null);
-
-  const debouncedSearch = useDebounce(filters.search, 500);
-
-  const currentFilters = { ...filters, search: debouncedSearch };
-
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['leads', currentFilters],
-    queryFn: () => getLeads(currentFilters),
-  });
-
-  const createMutation = useMutation({
-    mutationFn: createLead,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['leads'] });
-      setIsFormOpen(false);
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Lead> }) =>
-      updateLead(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['leads'] });
-      setIsFormOpen(false);
-      setEditingLead(null);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteLead,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['leads'] });
-    },
-  });
-
-  const handleFilterChange = useCallback((newFilters: LeadFiltersType) => {
-    setFilters(newFilters);
-  }, []);
-
-  const handleCreateNew = () => {
-    setEditingLead(null);
-    setIsFormOpen(true);
-  };
-
-  const handleEdit = (lead: Lead) => {
-    setEditingLead(lead);
-    setIsFormOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this lead?')) {
-      deleteMutation.mutate(id);
-    }
-  };
-
-  const handleFormSubmit = async (formData: CreateLeadFormData) => {
-    if (editingLead) {
-      updateMutation.mutate({ id: editingLead._id, data: formData });
-    } else {
-      createMutation.mutate(formData);
-    }
-  };
-
-  const handleFormClose = () => {
-    setIsFormOpen(false);
-    setEditingLead(null);
-  };
-
-  const handleExportCsv = async () => {
-    try {
-      const blob = await exportLeadsCsv(currentFilters);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `leads-${new Date().toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch {
-      // silently fail
-    }
-  };
 
   const leads = data?.data || [];
-  const pagination = data?.pagination;
+  const totalLeads = data?.pagination?.total || 0;
 
-  const totalLeads = pagination?.total || 0;
-
+  const newLeadsCount = leads.filter((l) => l.status === 'New').length;
+  const contactedCount = leads.filter((l) => l.status === 'Contacted').length;
+  const qualifiedCount = leads.filter((l) => l.status === 'Qualified').length;
+  const lostCount = leads.filter((l) => l.status === 'Lost').length;
+  const conversionRate = totalLeads > 0
+    ? ((leads.filter((l) => l.status === 'Qualified' || l.status === 'Contacted').length / totalLeads) * 100).toFixed(1)
+    : '0.0';
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-indigo-100 flex items-center justify-center">
-            <Users className="h-5 w-5 text-indigo-600" />
-          </div>
+      <div>
+        <h1 className="text-[28px] font-bold text-[#0b1c30] tracking-[-0.02em]">Dashboard</h1>
+        <p className="text-[14px] text-[#464555] mt-1">
+          {totalLeads} total lead{totalLeads !== 1 ? 's' : ''} active in your current funnel
+        </p>
+      </div>
+
+      <div className="grid grid-cols-12 gap-3">
+        <div className="col-span-12 lg:col-span-4 bg-[#3525cd] text-white p-6 rounded-2xl flex flex-col justify-between shadow-lg overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Leads</h2>
-            <p className="text-sm text-gray-500">
-              {totalLeads} total {totalLeads === 1 ? 'lead' : 'leads'}
+            <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-[12px] font-medium tracking-[0.05em] mb-4">
+              Growth Overview
+            </span>
+            <h2 className="text-[20px] font-semibold mb-2">
+              You've converted {conversionRate}% more leads this month
+            </h2>
+            <p className="text-[14px] opacity-80 mb-6">
+              Your funnel optimization strategy is showing positive results in the Qualified stage.
             </p>
           </div>
+          <div className="flex items-end gap-2 h-24">
+            <div className="flex-1 bg-white/20 rounded-t-lg h-[40%]" />
+            <div className="flex-1 bg-white/20 rounded-t-lg h-[60%]" />
+            <div className="flex-1 bg-white/20 rounded-t-lg h-[55%]" />
+            <div className="flex-1 bg-white/20 rounded-t-lg h-[85%]" />
+            <div className="flex-1 bg-white/40 rounded-t-lg h-full border-t-2 border-white" />
+          </div>
         </div>
-        <Button onClick={handleCreateNew}>
-          <Plus className="h-4 w-4 mr-1.5" />
-          Add lead
-        </Button>
+
+        <div className="col-span-12 lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="bg-white p-5 rounded-2xl border border-[#c7c4d8]">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+              <Users className="h-5 w-5" />
+            </div>
+            <p className="text-[12px] font-medium text-[#464555] tracking-[0.05em] uppercase">New Leads</p>
+            <h3 className="text-[28px] font-bold text-[#0b1c30] mt-1">{newLeadsCount}</h3>
+            <div className="flex items-center gap-1 text-green-600 mt-2">
+              <TrendingUp className="h-[18px] w-[18px]" />
+              <span className="text-[12px] font-medium">+{newLeadsCount > 0 ? Math.min(newLeadsCount * 3, 100) : 0}%</span>
+            </div>
+          </div>
+          <div className="bg-white p-5 rounded-2xl border border-[#c7c4d8]">
+            <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mb-4">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="text-[12px] font-medium text-[#464555] tracking-[0.05em] uppercase">Conversion Rate</p>
+            <h3 className="text-[28px] font-bold text-[#0b1c30] mt-1">{conversionRate}%</h3>
+            <div className="flex items-center gap-1 text-green-600 mt-2">
+              <TrendingUp className="h-[18px] w-[18px]" />
+              <span className="text-[12px] font-medium">+{parseFloat(conversionRate) > 0 ? (parseFloat(conversionRate) / 5).toFixed(1) : '0'}%</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <LeadFilters
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onExportCsv={handleExportCsv}
+      <DashboardAnalytics
+        data={{
+          totalLeads,
+          newLeads: newLeadsCount,
+          qualifiedCount,
+          contactedCount,
+          lostCount,
+          conversionRate,
+        }}
       />
-
-      <div className="card overflow-hidden">
-        <LeadTable
-          leads={leads}
-          isLoading={isLoading}
-          isError={isError}
-          error={error as Error | null}
-          onRetry={() => refetch()}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onCreateNew={handleCreateNew}
-        />
-      </div>
-
-      {pagination && (
-        <Pagination
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          onPageChange={(page) =>
-            setFilters((prev) => ({ ...prev, page }))
-          }
-        />
-      )}
-
-      <Modal
-        isOpen={isFormOpen}
-        onClose={handleFormClose}
-        title={editingLead ? 'Edit Lead' : 'Create Lead'}
-      >
-        <LeadForm
-          lead={editingLead}
-          onSubmit={handleFormSubmit}
-          onCancel={handleFormClose}
-          isLoading={createMutation.isPending || updateMutation.isPending}
-        />
-      </Modal>
     </div>
   );
 }

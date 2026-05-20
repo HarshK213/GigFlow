@@ -1,5 +1,5 @@
 import api from './axios';
-import type { Lead, LeadFilters, LeadsResponse } from '../types';
+import type { Lead, LeadFilters, LeadsResponse, ImportResult } from '../types';
 
 export async function getLeads(
   filters: LeadFilters
@@ -42,6 +42,13 @@ export async function deleteLead(
   const response = await api.delete<{ success: boolean; message: string }>(
     `/leads/${id}`
   );
+  return response.data;
+}
+
+export async function importLeads(
+  leads: Array<Pick<Lead, 'name' | 'email' | 'status' | 'source'>>
+): Promise<{ success: boolean; data: ImportResult }> {
+  const response = await api.post('/leads/import', { leads });
   return response.data;
 }
 
