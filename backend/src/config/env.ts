@@ -8,6 +8,7 @@ interface EnvConfig {
 	JWT_SECRET: string;
 	JWT_EXPIRES_IN: string;
 	NODE_ENV: "development" | "production" | "test";
+	CORS_ORIGIN: string;
 }
 
 function loadConfig(): EnvConfig {
@@ -37,6 +38,7 @@ function loadConfig(): EnvConfig {
 		JWT_SECRET: jwtSecret,
 		JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
 		NODE_ENV: nodeEnv as EnvConfig["NODE_ENV"],
+		CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5173,http://localhost:5000",
 	};
 }
 
