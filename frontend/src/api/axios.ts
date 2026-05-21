@@ -18,6 +18,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const url = error.config?.url || 'unknown';
+    const method = error.config?.method || 'unknown';
+    const status = error.response?.status || 'NETWORK';
+    const msg = error.response?.data?.message || error.message;
+    console.error(`[${method.toUpperCase()} ${url}] ${status}: ${msg}`);
+
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');

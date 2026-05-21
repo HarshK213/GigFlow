@@ -6,10 +6,13 @@ import { env } from '../config/env';
 
 export function errorHandler(
   err: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): void {
+  const context = `[${req.method} ${req.originalUrl}]`;
+  console.error(`${context} ${err.name}: ${err.message}`);
+
   if (err instanceof ApiError) {
     res.status(err.statusCode).json({
       success: false,

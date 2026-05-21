@@ -9,8 +9,7 @@ export async function connectDB(): Promise<void> {
 		);
 	} catch (error) {
 		console.error(
-			"MongoDB connection failed:",
-			error instanceof Error ? error.message : error,
+			`[Database] MongoDB connection failed: ${error instanceof Error ? error.message : error}`,
 		);
 		process.exit(1);
 	}

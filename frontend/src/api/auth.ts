@@ -5,8 +5,13 @@ export async function loginApi(data: {
   email: string;
   password: string;
 }): Promise<AuthResponse> {
-  const response = await api.post<AuthResponse>('/auth/login', data);
-  return response.data;
+  try {
+    const response = await api.post<AuthResponse>('/auth/login', data);
+    return response.data;
+  } catch (err) {
+    console.error('[login]', err);
+    throw err;
+  }
 }
 
 export async function registerApi(data: {
@@ -14,6 +19,11 @@ export async function registerApi(data: {
   email: string;
   password: string;
 }): Promise<AuthResponse> {
-  const response = await api.post<AuthResponse>('/auth/register', data);
-  return response.data;
+  try {
+    const response = await api.post<AuthResponse>('/auth/register', data);
+    return response.data;
+  } catch (err) {
+    console.error('[register]', err);
+    throw err;
+  }
 }
