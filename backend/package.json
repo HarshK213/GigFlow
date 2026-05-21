@@ -15,9 +15,7 @@
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^8.0.0",
 		"morgan": "^1.10.0",
-		"zod": "^3.22.4"
-	},
-	"devDependencies": {
+		"zod": "^3.22.4",
 		"@types/bcrypt": "^6.0.0",
 		"@types/bcryptjs": "^2.4.6",
 		"@types/cors": "^2.8.19",
@@ -27,5 +25,6 @@
 		"@types/node": "^20.19.41",
 		"tsx": "^4.6.2",
 		"typescript": "^5.3.2"
-	}
+	},
+	"devDependencies": {}
 }
